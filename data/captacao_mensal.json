@@ -1,0 +1,122 @@
+[
+  {
+    "periodo": "2025-06",
+    "renda_fixa": 12.827,
+    "acoes": -5.688,
+    "multimercado": -6.203,
+    "cambial": -0.029,
+    "previdencia": -4.622,
+    "etf": 1.425,
+    "fidc": 61.691,
+    "fip": 1.21,
+    "fiagro": 1.761
+  },
+  {
+    "periodo": "2025-07",
+    "renda_fixa": 14.262,
+    "acoes": -5.144,
+    "multimercado": 5.97,
+    "cambial": 0.148,
+    "previdencia": 3.643,
+    "etf": -1.223,
+    "fidc": -0.717,
+    "fip": 6.405,
+    "fiagro": 0.307
+  },
+  {
+    "periodo": "2025-08",
+    "renda_fixa": -7.485,
+    "acoes": 0.497,
+    "multimercado": 5.144,
+    "cambial": -0.04,
+    "previdencia": -4.711,
+    "etf": 0.998,
+    "fidc": -1.572,
+    "fip": 6.263,
+    "fiagro": 1.144
+  },
+  {
+    "periodo": "2025-09",
+    "renda_fixa": 49.644,
+    "acoes": -3.665,
+    "multimercado": -3.526,
+    "cambial": 0.108,
+    "previdencia": -5.553,
+    "etf": 2.575,
+    "fidc": -7.555,
+    "fip": 5.397,
+    "fiagro": 4.451
+  },
+  {
+    "periodo": "2025-10",
+    "renda_fixa": 13.316,
+    "acoes": -1.276,
+    "multimercado": -3.315,
+    "cambial": 0.11,
+    "previdencia": 3.205,
+    "etf": 1.389,
+    "fidc": 1.403,
+    "fip": 5.678,
+    "fiagro": 1.448
+  },
+  {
+    "periodo": "2025-11",
+    "renda_fixa": -4.483,
+    "acoes": -0.916,
+    "multimercado": -1.726,
+    "cambial": 0.029,
+    "previdencia": -8.795,
+    "etf": 5.726,
+    "fidc": -0.792,
+    "fip": 7.327,
+    "fiagro": 0.672
+  },
+  {
+    "periodo": "2025-12",
+    "renda_fixa": -67.428,
+    "acoes": 0.764,
+    "multimercado": 7.808,
+    "cambial": -0.383,
+    "previdencia": -0.093,
+    "etf": 8.549,
+    "fidc": 10.985,
+    "fip": 7.162,
+    "fiagro": 1.705
+  },
+  {
+    "periodo": "2026-01",
+    "renda_fixa": 59.29,
+    "acoes": -1.186,
+    "multimercado": 20.273,
+    "cambial": 0.255,
+    "previdencia": 1.39,
+    "etf": 4.701,
+    "fidc": -6.361,
+    "fip": 4.087,
+    "fiagro": 2.166
+  },
+  {
+    "periodo": "2026-02",
+    "renda_fixa": 66.493,
+    "acoes": -3.78,
+    "multimercado": -5.977,
+    "cambial": -0.204,
+    "previdencia": -1.125,
+    "etf": 6.212,
+    "fidc": 1.653,
+    "fip": 0.676,
+    "fiagro": 0.039
+  },
+  {
+    "periodo": "2026-03",
+    "renda_fixa": 4.534,
+    "acoes": -1.432,
+    "multimercado": -3.083,
+    "cambial": -0.131,
+    "previdencia": -0.575,
+    "etf": 6.916,
+    "fidc": 2.44,
+    "fip": 1.683,
+    "fiagro": 0.208
+  }
+]
