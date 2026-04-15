@@ -60,6 +60,42 @@ RF_COM_CREDITO_NORM = {
 COLUNAS_RF_GRUPOS = ["renda_fixa_sem_credito", "renda_fixa_com_credito"]
 
 
+def _parse_aux_rf_grupos(aux_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Le data/aux/rf_grupos.json e retorna (rf_cap_anual, rf_pl_anual) com colunas:
+        ano, renda_fixa_sem_credito, renda_fixa_com_credito  (em bilhoes)
+    """
+    json_path = Path(aux_dir) / "rf_grupos.json"
+    if not json_path.exists():
+        return pd.DataFrame(), pd.DataFrame()
+
+    try:
+        with open(json_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"  [AVISO] Falha ao ler rf_grupos.json: {e}")
+        return pd.DataFrame(), pd.DataFrame()
+
+    rf_cap = pd.DataFrame(data.get("captacao", []))
+    rf_pl  = pd.DataFrame(data.get("pl", []))
+    return rf_cap, rf_pl
+
+
+def _merge_rf_grupos(aux_df: pd.DataFrame, boletim_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Mescla dados de RF grupos do aux e do boletim.
+    Boletim tem prioridade (dados mais atualizados); aux preenche anos sem cobertura.
+    """
+    if aux_df.empty:
+        return boletim_df
+    if boletim_df.empty:
+        return aux_df
+    combined = pd.concat([aux_df, boletim_df], ignore_index=True)
+    # Para cada ano, mantém a última ocorrência (boletim vem por último no concat)
+    combined = combined.sort_values("ano").drop_duplicates("ano", keep="last")
+    return combined.reset_index(drop=True)
+
+
 def _compute_rf_grupos_anual(tipo_df: pd.DataFrame, agg: str = "sum") -> pd.DataFrame:
     """
     Calcula totais anuais de RF Sem Credito e RF Com Credito a partir dos dados
@@ -376,13 +412,19 @@ def build(raw_dir: str = "data/raw", output_dir: str = "public/data"):
     pl_mensal = _merge_mensal_tipo(all_pl_mensal)
     cap_mensal = _merge_mensal_tipo(all_cap_mensal)
 
-    # Enriquece com grupos RF
+    # Enriquece com grupos RF (aux historico + boletim recente)
     print("Calculando grupos RF Sem Credito / Com Credito...")
-    rf_cap = _compute_rf_grupos_anual(cap_mensal, agg="sum")
+    aux_dir = Path(__file__).parent
+    aux_rf_cap, aux_rf_pl = _parse_aux_rf_grupos(aux_dir)
+
+    boletim_rf_cap = _compute_rf_grupos_anual(cap_mensal, agg="sum")
+    boletim_rf_pl  = _compute_rf_grupos_anual(pl_mensal,  agg="dec")
+
+    rf_cap = _merge_rf_grupos(aux_rf_cap, boletim_rf_cap)
+    rf_pl  = _merge_rf_grupos(aux_rf_pl,  boletim_rf_pl)
+
     if not cap_anual.empty and not rf_cap.empty:
         cap_anual = cap_anual.merge(rf_cap, on="ano", how="left")
-
-    rf_pl = _compute_rf_grupos_anual(pl_mensal, agg="dec")
     if not pl_anual.empty and not rf_pl.empty:
         pl_anual = pl_anual.merge(rf_pl, on="ano", how="left")
 

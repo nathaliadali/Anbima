@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -101,9 +102,9 @@ function Tabela({
               const hasSemCredito = isRF && dados.some((d) => d.renda_fixa_sem_credito != null);
               const hasComCredito = isRF && dados.some((d) => d.renda_fixa_com_credito != null);
               return (
-                <>
+                <React.Fragment key={chave}>
                   <tr
-                    key={chave}
+                    className={idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"}
                     className={idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"}
                   >
                     <td className="px-3 py-2 font-medium text-gray-700">
@@ -166,7 +167,7 @@ function Tabela({
                       })}
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               );
             })}
             {/* Linha de total — computado client-side somando todas as classes */}

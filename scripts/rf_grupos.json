@@ -1,0 +1,78 @@
+{
+  "descricao": "Grupos RF Sem/Com Credito - extraido de aux anbima.xlsx",
+  "unidade": "bilhoes",
+  "pl": [
+    {
+      "ano": 2016,
+      "renda_fixa_sem_credito": 500.0,
+      "renda_fixa_com_credito": 1200.0
+    },
+    {
+      "ano": 2017,
+      "renda_fixa_sem_credito": 500.0,
+      "renda_fixa_com_credito": 1400.0
+    },
+    {
+      "ano": 2018,
+      "renda_fixa_sem_credito": 600.0,
+      "renda_fixa_com_credito": 1500.0
+    },
+    {
+      "ano": 2019,
+      "renda_fixa_sem_credito": 700.0,
+      "renda_fixa_com_credito": 1400.0
+    },
+    {
+      "ano": 2020,
+      "renda_fixa_sem_credito": 900.0,
+      "renda_fixa_com_credito": 1300.0
+    },
+    {
+      "ano": 2021,
+      "renda_fixa_sem_credito": 1100.0,
+      "renda_fixa_com_credito": 1500.0
+    },
+    {
+      "ano": 2022,
+      "renda_fixa_sem_credito": 1045.0,
+      "renda_fixa_com_credito": 1784.0
+    },
+    {
+      "ano": 2023,
+      "renda_fixa_sem_credito": 1170.898,
+      "renda_fixa_com_credito": 1971.872
+    },
+    {
+      "ano": 2024,
+      "renda_fixa_sem_credito": 1238.953,
+      "renda_fixa_com_credito": 2501.338
+    },
+    {
+      "ano": 2025,
+      "renda_fixa_sem_credito": 1373.211,
+      "renda_fixa_com_credito": 2806.537
+    }
+  ],
+  "captacao": [
+    {
+      "ano": 2022,
+      "renda_fixa_sem_credito": -137.098,
+      "renda_fixa_com_credito": 89.945
+    },
+    {
+      "ano": 2023,
+      "renda_fixa_sem_credito": -12.026,
+      "renda_fixa_com_credito": -46.016
+    },
+    {
+      "ano": 2024,
+      "renda_fixa_sem_credito": -47.478,
+      "renda_fixa_com_credito": 307.193
+    },
+    {
+      "ano": 2025,
+      "renda_fixa_sem_credito": 34.329,
+      "renda_fixa_com_credito": 115.902
+    }
+  ]
+}
