@@ -11,8 +11,8 @@
     "fidc": 25.546,
     "fip": -12.075,
     "fiagro": 0.0,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": -137.098,
+    "renda_fixa_com_credito": 89.945
   },
   {
     "periodo": "2023",
@@ -26,8 +26,8 @@
     "fidc": 40.124,
     "fip": 71.606,
     "fiagro": 0.0,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": -12.026,
+    "renda_fixa_com_credito": -46.016
   },
   {
     "periodo": "2024",
@@ -41,8 +41,8 @@
     "fidc": 147.018,
     "fip": 47.857,
     "fiagro": 0.0,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": -47.478,
+    "renda_fixa_com_credito": 307.193
   },
   {
     "periodo": "2025",

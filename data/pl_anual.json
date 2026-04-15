@@ -13,8 +13,8 @@
     "fiagro": 0.0,
     "fii": 248.03,
     "offshore": 41.268,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": 1045.0,
+    "renda_fixa_com_credito": 1784.0
   },
   {
     "periodo": "2023-12",
@@ -30,8 +30,8 @@
     "fiagro": 0.0,
     "fii": 301.471,
     "offshore": 45.836,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": 1170.898,
+    "renda_fixa_com_credito": 1971.872
   },
   {
     "periodo": "2024-12",
@@ -47,8 +47,8 @@
     "fiagro": 0.242,
     "fii": 342.441,
     "offshore": 52.542,
-    "renda_fixa_sem_credito": null,
-    "renda_fixa_com_credito": null
+    "renda_fixa_sem_credito": 1238.953,
+    "renda_fixa_com_credito": 2501.338
   },
   {
     "periodo": "2025-12",

@@ -9,7 +9,9 @@
     "etf": 1.425,
     "fidc": 61.691,
     "fip": 1.21,
-    "fiagro": 1.761
+    "fiagro": 1.761,
+    "renda_fixa_sem_credito": 7.886,
+    "renda_fixa_com_credito": -0.762
   },
   {
     "periodo": "2025-07",
@@ -21,7 +23,9 @@
     "etf": -1.223,
     "fidc": -0.717,
     "fip": 6.405,
-    "fiagro": 0.307
+    "fiagro": 0.307,
+    "renda_fixa_sem_credito": -1.839,
+    "renda_fixa_com_credito": 15.59
   },
   {
     "periodo": "2025-08",
@@ -33,7 +37,9 @@
     "etf": 0.998,
     "fidc": -1.572,
     "fip": 6.263,
-    "fiagro": 1.144
+    "fiagro": 1.144,
+    "renda_fixa_sem_credito": -34.611,
+    "renda_fixa_com_credito": 27.341
   },
   {
     "periodo": "2025-09",
@@ -45,7 +51,9 @@
     "etf": 2.575,
     "fidc": -7.555,
     "fip": 5.397,
-    "fiagro": 4.451
+    "fiagro": 4.451,
+    "renda_fixa_sem_credito": 18.074,
+    "renda_fixa_com_credito": 32.825
   },
   {
     "periodo": "2025-10",
@@ -57,7 +65,9 @@
     "etf": 1.389,
     "fidc": 1.403,
     "fip": 5.678,
-    "fiagro": 1.448
+    "fiagro": 1.448,
+    "renda_fixa_sem_credito": -24.347,
+    "renda_fixa_com_credito": 41.248
   },
   {
     "periodo": "2025-11",
@@ -69,7 +79,9 @@
     "etf": 5.726,
     "fidc": -0.792,
     "fip": 7.327,
-    "fiagro": 0.672
+    "fiagro": 0.672,
+    "renda_fixa_sem_credito": -0.471,
+    "renda_fixa_com_credito": -5.299
   },
   {
     "periodo": "2025-12",
@@ -81,7 +93,9 @@
     "etf": 8.549,
     "fidc": 10.985,
     "fip": 7.162,
-    "fiagro": 1.705
+    "fiagro": 1.705,
+    "renda_fixa_sem_credito": -25.557,
+    "renda_fixa_com_credito": -41.302
   },
   {
     "periodo": "2026-01",
@@ -93,7 +107,9 @@
     "etf": 4.701,
     "fidc": -6.361,
     "fip": 4.087,
-    "fiagro": 2.166
+    "fiagro": 2.166,
+    "renda_fixa_sem_credito": -7.5,
+    "renda_fixa_com_credito": 68.401
   },
   {
     "periodo": "2026-02",
@@ -105,7 +121,9 @@
     "etf": 6.212,
     "fidc": 1.653,
     "fip": 0.676,
-    "fiagro": 0.039
+    "fiagro": 0.039,
+    "renda_fixa_sem_credito": 33.064,
+    "renda_fixa_com_credito": 33.883
   },
   {
     "periodo": "2026-03",
@@ -117,6 +135,8 @@
     "etf": 6.916,
     "fidc": 2.44,
     "fip": 1.683,
-    "fiagro": 0.208
+    "fiagro": 0.208,
+    "renda_fixa_sem_credito": -10.271,
+    "renda_fixa_com_credito": 15.548
   }
 ]
