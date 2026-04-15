@@ -10,7 +10,9 @@
     "etf": 0.434,
     "fidc": 25.546,
     "fip": -12.075,
-    "fiagro": 0.0
+    "fiagro": 0.0,
+    "renda_fixa_sem_credito": null,
+    "renda_fixa_com_credito": null
   },
   {
     "periodo": "2023",
@@ -23,7 +25,9 @@
     "etf": -0.312,
     "fidc": 40.124,
     "fip": 71.606,
-    "fiagro": 0.0
+    "fiagro": 0.0,
+    "renda_fixa_sem_credito": null,
+    "renda_fixa_com_credito": null
   },
   {
     "periodo": "2024",
@@ -36,7 +40,9 @@
     "etf": -1.186,
     "fidc": 147.018,
     "fip": 47.857,
-    "fiagro": 0.0
+    "fiagro": 0.0,
+    "renda_fixa_sem_credito": null,
+    "renda_fixa_com_credito": null
   },
   {
     "periodo": "2025",
@@ -49,7 +55,9 @@
     "etf": 23.199,
     "fidc": 74.06,
     "fip": 73.575,
-    "fiagro": 11.653
+    "fiagro": 11.653,
+    "renda_fixa_sem_credito": -12.448,
+    "renda_fixa_com_credito": 82.279
   },
   {
     "periodo": "2026",
@@ -62,6 +70,8 @@
     "etf": 17.829,
     "fidc": -2.268,
     "fip": 6.446,
-    "fiagro": 2.413
+    "fiagro": 2.413,
+    "renda_fixa_sem_credito": 15.293,
+    "renda_fixa_com_credito": 117.832
   }
 ]
