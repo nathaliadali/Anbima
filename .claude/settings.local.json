@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:data.anbima.com.br)",
+      "WebSearch",
+      "Bash(python3)",
+      "WebFetch(domain:developers.anbima.com.br)",
+      "WebFetch(domain:www.anbima.com.br)",
+      "Bash(python3 -m pip install pandas openpyxl requests beautifulsoup4 -q)",
+      "Bash(python3 scripts/parse_boletim.py)",
+      "Bash(gh auth:*)",
+      "Bash(git --version)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)"
+    ]
+  }
+}
