@@ -97,31 +97,76 @@ function Tabela({
           <tbody>
             {classesComDados.map((chave, idx) => {
               const label = CLASSE_LABELS[chave] ?? chave;
+              const isRF = chave === "renda_fixa";
+              const hasSemCredito = isRF && dados.some((d) => d.renda_fixa_sem_credito != null);
+              const hasComCredito = isRF && dados.some((d) => d.renda_fixa_com_credito != null);
               return (
-                <tr
-                  key={chave}
-                  className={
-                    idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"
-                  }
-                >
-                  <td className="px-3 py-2 font-medium text-gray-700">
-                    {label}
-                  </td>
-                  {dados.map((d) => {
-                    const val = d[chave] as number | null;
-                    const neg = isCaptacao && val != null && val < 0;
-                    return (
-                      <td
-                        key={d.ano}
-                        className={`px-3 py-2 text-right tabular-nums ${
-                          neg ? "text-red-600" : "text-gray-800"
-                        }`}
-                      >
-                        {isCaptacao ? fmtSinal(val) : fmt(val)}
+                <>
+                  <tr
+                    key={chave}
+                    className={idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"}
+                  >
+                    <td className="px-3 py-2 font-medium text-gray-700">
+                      {label}
+                    </td>
+                    {dados.map((d) => {
+                      const val = d[chave] as number | null;
+                      const neg = isCaptacao && val != null && val < 0;
+                      return (
+                        <td
+                          key={d.ano}
+                          className={`px-3 py-2 text-right tabular-nums ${
+                            neg ? "text-red-600" : "text-gray-800"
+                          }`}
+                        >
+                          {isCaptacao ? fmtSinal(val) : fmt(val)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {hasSemCredito && (
+                    <tr key="renda_fixa_sem_credito" className="bg-anbima-blue-light/10">
+                      <td className="pl-7 pr-3 py-1.5 text-xs text-gray-500 italic">
+                        ↳ Sem Crédito
                       </td>
-                    );
-                  })}
-                </tr>
+                      {dados.map((d) => {
+                        const val = d.renda_fixa_sem_credito ?? null;
+                        const neg = isCaptacao && val != null && val < 0;
+                        return (
+                          <td
+                            key={d.ano}
+                            className={`px-3 py-1.5 text-right tabular-nums text-xs ${
+                              neg ? "text-red-500" : "text-gray-500"
+                            }`}
+                          >
+                            {isCaptacao ? fmtSinal(val) : fmt(val)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                  {hasComCredito && (
+                    <tr key="renda_fixa_com_credito" className="bg-anbima-blue-light/10">
+                      <td className="pl-7 pr-3 py-1.5 text-xs text-gray-500 italic">
+                        ↳ Com Crédito
+                      </td>
+                      {dados.map((d) => {
+                        const val = d.renda_fixa_com_credito ?? null;
+                        const neg = isCaptacao && val != null && val < 0;
+                        return (
+                          <td
+                            key={d.ano}
+                            className={`px-3 py-1.5 text-right tabular-nums text-xs ${
+                              neg ? "text-red-500" : "text-gray-500"
+                            }`}
+                          >
+                            {isCaptacao ? fmtSinal(val) : fmt(val)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                </>
               );
             })}
             {/* Linha de total — computado client-side somando todas as classes */}

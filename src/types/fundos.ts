@@ -5,6 +5,8 @@ export interface DadoAnual {
   periodo: string;          // "YYYY-MM" (dezembro do ano de referência)
   ano: number;
   renda_fixa?: number | null;
+  renda_fixa_sem_credito?: number | null;
+  renda_fixa_com_credito?: number | null;
   acoes?: number | null;
   multimercado?: number | null;
   cambial?: number | null;

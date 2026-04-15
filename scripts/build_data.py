@@ -37,6 +37,89 @@ from parse_boletim import parse_boletim, COLUNAS_CLASSE_ANUAL, _normalize
 # ---------------------------------------------------------------------------
 CLASSES_ABERTAS_NORM = {"renda fixa", "multimercados", "multimercado", "acoes"}
 
+# ---------------------------------------------------------------------------
+# Grupos de Renda Fixa para breakdown anual (nomes normalizados)
+# ---------------------------------------------------------------------------
+RF_SEM_CREDITO_NORM = {
+    "renda fixa simples", "renda fixa indexados",
+    "renda fixa duracao baixa soberano", "renda fixa duracao media soberano",
+    "renda fixa duracao alta soberano", "renda fixa duracao livre soberano",
+}
+
+RF_COM_CREDITO_NORM = {
+    "renda fixa duracao baixa grau de investimento",
+    "renda fixa duracao media grau de investimento",
+    "renda fixa duracao alta grau de investimento",
+    "renda fixa duracao livre grau de investimento",
+    "renda fixa duracao baixa credito livre",
+    "renda fixa duracao media credito livre",
+    "renda fixa duracao alta credito livre",
+    "renda fixa duracao livre credito livre",
+}
+
+COLUNAS_RF_GRUPOS = ["renda_fixa_sem_credito", "renda_fixa_com_credito"]
+
+
+def _compute_rf_grupos_anual(tipo_df: pd.DataFrame, agg: str = "sum") -> pd.DataFrame:
+    """
+    Calcula totais anuais de RF Sem Credito e RF Com Credito a partir dos dados
+    mensais por tipo (Sheet 9 para captacao, Sheet 5 para PL).
+    agg='sum' -> soma todos os meses do ano (captacao)
+    agg='dec' -> usa dezembro ou ultimo mes disponivel (PL)
+    """
+    if tipo_df.empty:
+        return pd.DataFrame()
+
+    month_cols = [c for c in tipo_df.columns
+                  if isinstance(c, str) and len(c) == 7 and c[4] == "-"]
+    if not month_cols:
+        return pd.DataFrame()
+
+    sem_mask = tipo_df["nome"].apply(lambda n: _normalize(str(n)) in RF_SEM_CREDITO_NORM)
+    com_mask = tipo_df["nome"].apply(lambda n: _normalize(str(n)) in RF_COM_CREDITO_NORM)
+
+    rf_sem = tipo_df[sem_mask]
+    rf_com = tipo_df[com_mask]
+
+    years = sorted(set(c[:4] for c in month_cols))
+    rows = []
+
+    for year in years:
+        year_cols = sorted(c for c in month_cols if c.startswith(year))
+        if not year_cols:
+            continue
+
+        if agg == "sum":
+            def _col_sum(df: pd.DataFrame, cols: list) -> float | None:
+                vals = []
+                for col in cols:
+                    if col in df.columns:
+                        vals.extend(pd.to_numeric(df[col], errors="coerce").dropna().tolist())
+                return round(float(sum(vals)), 3) if vals else None
+
+            sem_val = _col_sum(rf_sem, year_cols)
+            com_val = _col_sum(rf_com, year_cols)
+        else:
+            dec_col = f"{year}-12" if f"{year}-12" in year_cols else year_cols[-1]
+
+            def _dec_sum(df: pd.DataFrame, col: str) -> float | None:
+                if col not in df.columns:
+                    return None
+                vals = pd.to_numeric(df[col], errors="coerce").dropna()
+                return round(float(vals.sum()), 3) if not vals.empty else None
+
+            sem_val = _dec_sum(rf_sem, dec_col)
+            com_val = _dec_sum(rf_com, dec_col)
+
+        rows.append({
+            "ano": int(year),
+            "renda_fixa_sem_credito": sem_val,
+            "renda_fixa_com_credito": com_val,
+        })
+
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
 CLASSE_LABELS = {
     "renda_fixa": "Renda Fixa",
     "acoes": "Acoes",
@@ -130,6 +213,9 @@ def _anual_to_json(df: pd.DataFrame, n_anos: int = 5) -> list[dict]:
     for _, row in df_sorted.iterrows():
         d = {"periodo": str(row["periodo"]), "ano": int(row["ano"])}
         for col in COLUNAS_CLASSE_ANUAL:
+            if col in row:
+                d[col] = _safe_float(row[col])
+        for col in COLUNAS_RF_GRUPOS:
             if col in row:
                 d[col] = _safe_float(row[col])
         if "total" in row:
@@ -289,6 +375,16 @@ def build(raw_dir: str = "data/raw", output_dir: str = "public/data"):
     cap_mensal_classe = _merge_mensal_classe(all_cap_mensal_classe)
     pl_mensal = _merge_mensal_tipo(all_pl_mensal)
     cap_mensal = _merge_mensal_tipo(all_cap_mensal)
+
+    # Enriquece com grupos RF
+    print("Calculando grupos RF Sem Credito / Com Credito...")
+    rf_cap = _compute_rf_grupos_anual(cap_mensal, agg="sum")
+    if not cap_anual.empty and not rf_cap.empty:
+        cap_anual = cap_anual.merge(rf_cap, on="ano", how="left")
+
+    rf_pl = _compute_rf_grupos_anual(pl_mensal, agg="dec")
+    if not pl_anual.empty and not rf_pl.empty:
+        pl_anual = pl_anual.merge(rf_pl, on="ano", how="left")
 
     # Serializa
     outputs = {
