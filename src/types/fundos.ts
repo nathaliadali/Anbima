@@ -80,15 +80,15 @@ export const ORDEM_CLASSES: (keyof Omit<DadoAnual, "periodo" | "ano" | "total">)
 ];
 
 export const CORES_CLASSES: Record<string, string> = {
-  renda_fixa: "#003DA5",
-  multimercado: "#00843D",
-  acoes: "#E85C0D",
-  cambial: "#7B2D8B",
-  previdencia: "#C4920A",
-  etf: "#0087CC",
-  fidc: "#555B6E",
-  fip: "#89B0AE",
-  fiagro: "#57A06C",
-  fii: "#D4A373",
-  offshore: "#9B5DE5",
+  renda_fixa:   "#1B3157", // Azul Profundidade 1
+  multimercado: "#5FBB47", // Verde Vanguarda
+  acoes:        "#F58C2E", // Laranja Vanguarda
+  cambial:      "#963B82", // Roxo Vanguarda
+  previdencia:  "#FFC24F", // Amarelo Vanguarda
+  etf:          "#2E96BF", // Azul Profundidade 3
+  fidc:         "#0D6696", // Azul Profundidade 2
+  fip:          "#00BADB", // Azul Profundidade 4
+  fiagro:       "#F04F6E", // Rosa Vanguarda
+  fii:          "#6B7280", // Cinza neutro
+  offshore:     "#94A3B8", // Cinza-azulado neutro
 };

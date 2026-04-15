@@ -124,20 +124,24 @@ function Tabela({
                 </tr>
               );
             })}
-            {/* Linha de total */}
-            <tr className="bg-anbima-blue/5 border-t-2 border-anbima-blue font-semibold">
-              <td className="px-3 py-2 text-gray-800">Total</td>
+            {/* Linha de total — computado client-side somando todas as classes */}
+            <tr className="bg-anbima-blue text-white border-t-2 border-anbima-blue-dark font-semibold">
+              <td className="px-3 py-2">Total</td>
               {dados.map((d) => {
-                const val = d.total;
+                const val = classesComDados.reduce<number | null>((sum, c) => {
+                  const v = d[c] as number | null;
+                  if (v == null) return sum;
+                  return (sum ?? 0) + v;
+                }, null);
                 const neg = isCaptacao && val != null && val < 0;
                 return (
                   <td
                     key={d.ano}
                     className={`px-3 py-2 text-right tabular-nums ${
-                      neg ? "text-red-600" : "text-gray-800"
+                      neg ? "text-red-300" : "text-green-300"
                     }`}
                   >
-                    {isCaptacao ? fmtSinal(val) : fmt(val)}
+                    {val == null ? "–" : isCaptacao ? fmtSinal(val) : fmt(val)}
                   </td>
                 );
               })}

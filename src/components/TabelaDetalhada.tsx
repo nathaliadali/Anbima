@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ReactElement } from "react";
-import { TabelaDetalhada as TDados, ClasseFundo } from "../types/fundos";
+import { TabelaDetalhada as TDados, ClasseFundo, Subcategoria } from "../types/fundos";
 
 interface Props {
   dados: TDados;
@@ -18,32 +18,195 @@ function formatMes(periodo: string): string {
   return `${MESES_PT[mes] ?? mes}/${ano.slice(2)}`;
 }
 
-function fmt(val: number | null | undefined, isNeg?: boolean): ReactElement {
+function fmt(val: number | null | undefined): ReactElement {
   if (val == null) return <span className="text-gray-300">–</span>;
   const s = val > 0 ? "+" : "";
   const text = `${s}${val.toFixed(1).replace(".", ",")}`;
   return (
-    <span className={isNeg || val < 0 ? "text-red-600" : val > 0 ? "text-gray-800" : "text-gray-400"}>
+    <span className={val < 0 ? "text-red-600" : val > 0 ? "text-gray-800" : "text-gray-400"}>
       {text}
     </span>
   );
 }
 
-// Calcula acumulado de um array de valores
 function acum(valores: (number | null)[]): number | null {
   const valids = valores.filter((v): v is number => v != null);
   if (!valids.length) return null;
   return valids.reduce((a, b) => a + b, 0);
 }
 
-// Linha de categoria (negrito, sem indentação)
+// ---------------------------------------------------------------------------
+// Estrutura hierárquica de Renda Fixa
+// ---------------------------------------------------------------------------
+type RFItemDef     = { type: "item"; nome: string };
+type RFSubgroupDef = { type: "subgroup"; nome: string; items: string[] };
+type RFGroupDef    = { type: "group"; nome: string; children: Array<RFItemDef | RFSubgroupDef> };
+type RFEntryDef    = RFGroupDef | RFItemDef;
+
+const RF_ESTRUTURA: RFEntryDef[] = [
+  {
+    type: "group",
+    nome: "Sem Crédito",
+    children: [
+      { type: "item", nome: "Renda Fixa Simples" },
+      { type: "item", nome: "Renda Fixa Indexados" },
+    ],
+  },
+  {
+    type: "group",
+    nome: "Soberano",
+    children: [
+      { type: "item", nome: "Renda Fixa Duração Baixa Soberano" },
+      { type: "item", nome: "Renda Fixa Duração Média Soberano" },
+      { type: "item", nome: "Renda Fixa Duração Alta Soberano" },
+      { type: "item", nome: "Renda Fixa Duração Livre Soberano" },
+    ],
+  },
+  {
+    type: "group",
+    nome: "Com Crédito",
+    children: [
+      {
+        type: "subgroup",
+        nome: "Grau de Investimento",
+        items: [
+          "Renda Fixa Duração Baixa Grau de Investimento",
+          "Renda Fixa Duração Média Grau de Investimento",
+          "Renda Fixa Duração Alta Grau de Investimento",
+          "Renda Fixa Duração Livre Grau de Investimento",
+        ],
+      },
+      {
+        type: "subgroup",
+        nome: "Livre",
+        items: [
+          "Renda Fixa Duração Baixa Crédito Livre",
+          "Renda Fixa Duração Média Crédito Livre",
+          "Renda Fixa Duração Alta Crédito Livre",
+          "Renda Fixa Duração Livre Crédito Livre",
+        ],
+      },
+    ],
+  },
+  { type: "item", nome: "Renda Fixa Investimento no Exterior" },
+  { type: "item", nome: "Renda Fixa Dívida Externa" },
+];
+
+function normNome(nome: string): string {
+  return nome.toLowerCase().trim();
+}
+
+function findSub(subs: Subcategoria[], nome: string): Subcategoria | undefined {
+  const norm = normNome(nome);
+  return subs.find((s) => normNome(s.nome) === norm);
+}
+
+function renderItemRow(
+  sub: Subcategoria,
+  meses: string[],
+  mesesAno: string[],
+  indent: string,
+): ReactElement {
+  const acumAno  = acum(mesesAno.map((m) => sub.valores[m] ?? null));
+  const acum12m  = acum(meses.map((m) => sub.valores[m] ?? null));
+  return (
+    <tr key={sub.codigo ?? sub.nome} className="bg-white hover:bg-anbima-blue-light/30 transition-colors">
+      <td className="px-3 py-1.5 text-gray-600 sticky left-0 bg-inherit" style={{ minWidth: "220px" }}>
+        <div className={`flex items-center gap-1 ${indent}`}>
+          <span className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0" />
+          <span className="text-xs leading-tight">{sub.nome}</span>
+          {sub.codigo && <span className="text-xs text-gray-400 ml-auto">{sub.codigo}</span>}
+        </div>
+      </td>
+      {meses.map((m) => (
+        <td key={m} className="px-2 py-1.5 text-right tabular-nums text-xs">
+          {fmt(sub.valores[m])}
+        </td>
+      ))}
+      <td className="px-2 py-1.5 text-right tabular-nums text-xs border-l border-gray-200">{fmt(acumAno)}</td>
+      <td className="px-2 py-1.5 text-right tabular-nums text-xs">{fmt(acum12m)}</td>
+    </tr>
+  );
+}
+
+function renderRFSubcategorias(
+  classe: ClasseFundo,
+  meses: string[],
+  mesesAno: string[],
+): ReactElement[] {
+  const subs     = classe.subcategorias;
+  const totalCols = meses.length + 3; // sticky name + month cols + acum ano + acum 12m
+  const rows: ReactElement[] = [];
+  const used = new Set<string>();
+
+  for (const entry of RF_ESTRUTURA) {
+    if (entry.type === "item") {
+      const sub = findSub(subs, entry.nome);
+      if (sub) {
+        used.add(normNome(sub.nome));
+        rows.push(renderItemRow(sub, meses, mesesAno, "pl-5"));
+      }
+    } else {
+      // grupo header
+      rows.push(
+        <tr key={`g-${entry.nome}`} className="bg-anbima-blue/10 border-t border-anbima-blue/20">
+          <td
+            colSpan={totalCols}
+            className="py-1.5 text-xs font-semibold text-anbima-blue uppercase tracking-wide"
+            style={{ paddingLeft: "2rem" }}
+          >
+            {entry.nome}
+          </td>
+        </tr>
+      );
+
+      for (const child of entry.children) {
+        if (child.type === "item") {
+          const sub = findSub(subs, child.nome);
+          if (sub) {
+            used.add(normNome(sub.nome));
+            rows.push(renderItemRow(sub, meses, mesesAno, "pl-8"));
+          }
+        } else {
+          // subgrupo header
+          rows.push(
+            <tr key={`sg-${child.nome}`} className="bg-gray-50 border-t border-gray-100">
+              <td
+                colSpan={totalCols}
+                className="py-1 text-xs font-medium text-gray-500 italic"
+                style={{ paddingLeft: "3.5rem" }}
+              >
+                {child.nome}
+              </td>
+            </tr>
+          );
+          for (const nome of child.items) {
+            const sub = findSub(subs, nome);
+            if (sub) {
+              used.add(normNome(sub.nome));
+              rows.push(renderItemRow(sub, meses, mesesAno, "pl-14"));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // subcategorias que não foram mapeadas na estrutura — renderiza ao final
+  for (const sub of subs) {
+    if (!used.has(normNome(sub.nome))) {
+      rows.push(renderItemRow(sub, meses, mesesAno, "pl-5"));
+    }
+  }
+
+  return rows;
+}
+
+// ---------------------------------------------------------------------------
+// Linha de categoria (negrito, com botão expand)
+// ---------------------------------------------------------------------------
 function LinhaCategoria({
-  classe,
-  meses,
-  expanded,
-  onToggle,
-  acumAno,
-  acum12m,
+  classe, meses, expanded, onToggle, acumAno, acum12m,
 }: {
   classe: ClasseFundo;
   meses: string[];
@@ -55,12 +218,9 @@ function LinhaCategoria({
   const temSubs = classe.subcategorias.length > 0;
   return (
     <tr className="bg-anbima-blue/5 border-t border-anbima-blue/20 font-semibold">
-      <td
-        className="px-3 py-2 text-gray-800 sticky left-0 bg-anbima-blue/5 whitespace-nowrap"
-        style={{ minWidth: "220px" }}
-      >
+      <td className="px-3 py-2 text-gray-800 sticky left-0 bg-anbima-blue/5 whitespace-nowrap" style={{ minWidth: "220px" }}>
         <div className="flex items-center gap-1">
-          {temSubs && (
+          {temSubs ? (
             <button
               onClick={onToggle}
               className="w-4 h-4 flex items-center justify-center text-anbima-blue hover:text-anbima-blue-dark transition-colors rounded"
@@ -68,35 +228,26 @@ function LinhaCategoria({
             >
               {expanded ? "▾" : "▸"}
             </button>
+          ) : (
+            <span className="w-4" />
           )}
-          {!temSubs && <span className="w-4" />}
           <span>{classe.nome}</span>
         </div>
       </td>
       {meses.map((m) => (
-        <td key={m} className="px-2 py-2 text-right tabular-nums text-sm">
-          {fmt(classe.valores[m])}
-        </td>
+        <td key={m} className="px-2 py-2 text-right tabular-nums text-sm">{fmt(classe.valores[m])}</td>
       ))}
-      <td className="px-2 py-2 text-right tabular-nums text-sm border-l border-gray-200">
-        {fmt(acumAno)}
-      </td>
-      <td className="px-2 py-2 text-right tabular-nums text-sm">
-        {fmt(acum12m)}
-      </td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm border-l border-gray-200">{fmt(acumAno)}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm">{fmt(acum12m)}</td>
     </tr>
   );
 }
 
-// Linha de subcategoria (indentada)
+// ---------------------------------------------------------------------------
+// Linha de subcategoria simples (para classes não-RF)
+// ---------------------------------------------------------------------------
 function LinhaSubcategoria({
-  nome,
-  codigo,
-  meses,
-  valores,
-  acumAno,
-  acum12m,
-  isLast,
+  nome, codigo, meses, valores, acumAno, acum12m,
 }: {
   nome: string;
   codigo: string | null;
@@ -104,43 +255,33 @@ function LinhaSubcategoria({
   valores: Record<string, number | null>;
   acumAno: number | null;
   acum12m: number | null;
-  isLast: boolean;
 }) {
   return (
-    <tr className={`bg-white hover:bg-blue-50/30 transition-colors ${isLast ? "border-b border-gray-200" : ""}`}>
-      <td
-        className="px-3 py-1.5 text-gray-600 sticky left-0 bg-inherit"
-        style={{ minWidth: "220px" }}
-      >
+    <tr className="bg-white hover:bg-anbima-blue-light/30 transition-colors">
+      <td className="px-3 py-1.5 text-gray-600 sticky left-0 bg-inherit" style={{ minWidth: "220px" }}>
         <div className="flex items-center gap-1 pl-5">
           <span className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0" />
           <span className="text-xs leading-tight">{nome}</span>
-          {codigo && (
-            <span className="text-xs text-gray-400 ml-auto">{codigo}</span>
-          )}
+          {codigo && <span className="text-xs text-gray-400 ml-auto">{codigo}</span>}
         </div>
       </td>
       {meses.map((m) => (
-        <td key={m} className="px-2 py-1.5 text-right tabular-nums text-xs">
-          {fmt(valores[m])}
-        </td>
+        <td key={m} className="px-2 py-1.5 text-right tabular-nums text-xs">{fmt(valores[m])}</td>
       ))}
-      <td className="px-2 py-1.5 text-right tabular-nums text-xs border-l border-gray-200">
-        {fmt(acumAno)}
-      </td>
-      <td className="px-2 py-1.5 text-right tabular-nums text-xs">
-        {fmt(acum12m)}
-      </td>
+      <td className="px-2 py-1.5 text-right tabular-nums text-xs border-l border-gray-200">{fmt(acumAno)}</td>
+      <td className="px-2 py-1.5 text-right tabular-nums text-xs">{fmt(acum12m)}</td>
     </tr>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Componente principal
+// ---------------------------------------------------------------------------
 export default function TabelaDetalhada({
   dados,
   titulo = "Captação Líquida por Tipo — Mensal (R$ bilhões)",
 }: Props) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    // Renda Fixa, Multimercado e Ações começam abertas
     renda_fixa: true,
     multimercado: true,
     acoes: true,
@@ -152,13 +293,11 @@ export default function TabelaDetalhada({
     return <p className="text-gray-500 text-sm">Dados detalhados não disponíveis.</p>;
   }
 
-  // Determina o início do ano atual (para acum. ano)
-  const anoAtual = meses[meses.length - 1]?.slice(0, 4) ?? "";
-  const mesesAno = meses.filter((m) => m.startsWith(anoAtual));
+  const anoAtual  = meses[meses.length - 1]?.slice(0, 4) ?? "";
+  const mesesAno  = meses.filter((m) => m.startsWith(anoAtual));
 
-  const toggleExpand = (chave: string) => {
+  const toggleExpand = (chave: string) =>
     setExpanded((prev) => ({ ...prev, [chave]: !prev[chave] }));
-  };
 
   return (
     <div>
@@ -166,11 +305,7 @@ export default function TabelaDetalhada({
         <h3 className="text-base font-semibold text-gray-700">{titulo}</h3>
         <div className="flex gap-2 text-xs">
           <button
-            onClick={() =>
-              setExpanded(
-                Object.fromEntries(classes.map((c) => [c.chave, true]))
-              )
-            }
+            onClick={() => setExpanded(Object.fromEntries(classes.map((c) => [c.chave, true])))}
             className="px-2 py-1 text-anbima-blue border border-anbima-blue rounded hover:bg-anbima-blue-light transition-colors"
           >
             Expandir tudo
@@ -188,22 +323,15 @@ export default function TabelaDetalhada({
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-anbima-blue text-white">
-              <th
-                className="text-left px-3 py-2.5 font-medium sticky left-0 bg-anbima-blue"
-                style={{ minWidth: "220px" }}
-              >
+              <th className="text-left px-3 py-2.5 font-medium sticky left-0 bg-anbima-blue" style={{ minWidth: "220px" }}>
                 Classe / Tipo
               </th>
               {meses.map((m) => (
-                <th
-                  key={m}
-                  className="text-right px-2 py-2.5 font-medium whitespace-nowrap"
-                  style={{ minWidth: "70px" }}
-                >
+                <th key={m} className="text-right px-2 py-2.5 font-medium whitespace-nowrap" style={{ minWidth: "70px" }}>
                   {formatMes(m)}
                 </th>
               ))}
-              <th className="text-right px-2 py-2.5 font-medium whitespace-nowrap border-l border-blue-400 bg-anbima-blue-dark">
+              <th className="text-right px-2 py-2.5 font-medium whitespace-nowrap border-l border-anbima-blue-3 bg-anbima-blue-dark">
                 Acum. {anoAtual}
               </th>
               <th className="text-right px-2 py-2.5 font-medium whitespace-nowrap bg-anbima-blue-dark">
@@ -213,10 +341,11 @@ export default function TabelaDetalhada({
           </thead>
           <tbody>
             {classes.map((classe) => {
-              const isOpen = !!expanded[classe.chave];
-              const mesesAnoVals = mesesAno.map((m) => classe.valores[m] ?? null);
-              const acumAnoVal = acum(mesesAnoVals);
-              const acum12mVal = acum(meses.map((m) => classe.valores[m] ?? null));
+              const isOpen        = !!expanded[classe.chave];
+              const mesesAnoVals  = mesesAno.map((m) => classe.valores[m] ?? null);
+              const acumAnoVal    = acum(mesesAnoVals);
+              const acum12mVal    = acum(meses.map((m) => classe.valores[m] ?? null));
+              const isRendaFixa   = classe.chave.includes("renda_fixa");
 
               return (
                 <>
@@ -229,8 +358,9 @@ export default function TabelaDetalhada({
                     acumAno={acumAnoVal}
                     acum12m={acum12mVal}
                   />
-                  {isOpen &&
-                    classe.subcategorias.map((sub, idx) => {
+                  {isOpen && isRendaFixa && renderRFSubcategorias(classe, meses, mesesAno)}
+                  {isOpen && !isRendaFixa &&
+                    classe.subcategorias.map((sub) => {
                       const subMesesAno = mesesAno.map((m) => sub.valores[m] ?? null);
                       return (
                         <LinhaSubcategoria
@@ -241,63 +371,44 @@ export default function TabelaDetalhada({
                           valores={sub.valores}
                           acumAno={acum(subMesesAno)}
                           acum12m={acum(meses.map((m) => sub.valores[m] ?? null))}
-                          isLast={idx === classe.subcategorias.length - 1}
                         />
                       );
-                    })}
+                    })
+                  }
                 </>
               );
             })}
 
             {/* Linha de total */}
-            <tr className="bg-gray-800 text-white font-semibold border-t-2 border-gray-600">
-              <td className="px-3 py-2.5 sticky left-0 bg-gray-800">Total</td>
+            <tr className="bg-anbima-blue text-white font-semibold border-t-2 border-anbima-blue-dark">
+              <td className="px-3 py-2.5 sticky left-0 bg-anbima-blue">Total</td>
               {meses.map((m) => {
-                const total = classes
-                  .filter((c) => c.valores[m] != null)
-                  .reduce((s, c) => s + (c.valores[m] ?? 0), 0);
-                const allNull = classes.every((c) => c.valores[m] == null);
+                const vals  = classes.map((c) => c.valores[m] ?? null);
+                const total = acum(vals);
                 return (
                   <td key={m} className="px-2 py-2.5 text-right tabular-nums">
-                    {allNull ? (
-                      <span className="text-gray-500">–</span>
+                    {total == null ? (
+                      <span className="text-blue-300">–</span>
                     ) : (
                       <span className={total < 0 ? "text-red-300" : "text-green-300"}>
-                        {total > 0 ? "+" : ""}
-                        {total.toFixed(1).replace(".", ",")}
+                        {total > 0 ? "+" : ""}{total.toFixed(1).replace(".", ",")}
                       </span>
                     )}
                   </td>
                 );
               })}
-              <td className="px-2 py-2.5 text-right tabular-nums border-l border-gray-600">
+              <td className="px-2 py-2.5 text-right tabular-nums border-l border-anbima-blue-dark">
                 {(() => {
-                  const v = acum(
-                    mesesAno.map((m) =>
-                      classes.reduce((s, c) => s + (c.valores[m] ?? 0), 0)
-                    )
-                  );
-                  if (v == null) return <span className="text-gray-500">–</span>;
-                  return (
-                    <span className={v < 0 ? "text-red-300" : "text-green-300"}>
-                      {v > 0 ? "+" : ""}{v.toFixed(1).replace(".", ",")}
-                    </span>
-                  );
+                  const v = acum(mesesAno.map((m) => acum(classes.map((c) => c.valores[m] ?? null))));
+                  if (v == null) return <span className="text-blue-300">–</span>;
+                  return <span className={v < 0 ? "text-red-300" : "text-green-300"}>{v > 0 ? "+" : ""}{v.toFixed(1).replace(".", ",")}</span>;
                 })()}
               </td>
               <td className="px-2 py-2.5 text-right tabular-nums">
                 {(() => {
-                  const v = acum(
-                    meses.map((m) =>
-                      classes.reduce((s, c) => s + (c.valores[m] ?? 0), 0)
-                    )
-                  );
-                  if (v == null) return <span className="text-gray-500">–</span>;
-                  return (
-                    <span className={v < 0 ? "text-red-300" : "text-green-300"}>
-                      {v > 0 ? "+" : ""}{v.toFixed(1).replace(".", ",")}
-                    </span>
-                  );
+                  const v = acum(meses.map((m) => acum(classes.map((c) => c.valores[m] ?? null))));
+                  if (v == null) return <span className="text-blue-300">–</span>;
+                  return <span className={v < 0 ? "text-red-300" : "text-green-300"}>{v > 0 ? "+" : ""}{v.toFixed(1).replace(".", ",")}</span>;
                 })()}
               </td>
             </tr>
