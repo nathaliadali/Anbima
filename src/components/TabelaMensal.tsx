@@ -1,3 +1,4 @@
+import React from "react";
 import {
   LineChart,
   Line,
@@ -144,29 +145,73 @@ export default function TabelaMensal({ captacaoMensal }: Props) {
           <tbody>
             {classes.map((chave, idx) => {
               const label = CLASSE_LABELS_PT[chave] ?? chave;
+              const isRF = chave === "renda_fixa";
+              const hasSem = isRF && captacaoMensal.some((d) => d["renda_fixa_sem_credito"] != null);
+              const hasCom = isRF && captacaoMensal.some((d) => d["renda_fixa_com_credito"] != null);
               return (
-                <tr
-                  key={chave}
-                  className={idx % 2 === 0 ? "bg-white" : "bg-blue-50/30"}
-                >
-                  <td className="px-3 py-2 font-medium text-gray-700 sticky left-0 bg-inherit">
-                    {label}
-                  </td>
-                  {captacaoMensal.map((d) => {
-                    const val = d[chave] as number | null;
-                    const neg = val != null && val < 0;
-                    return (
-                      <td
-                        key={d.periodo}
-                        className={`px-3 py-2 text-right tabular-nums ${
-                          neg ? "text-red-600" : "text-gray-800"
-                        }`}
-                      >
-                        {fmtSinal(val)}
+                <React.Fragment key={chave}>
+                  <tr className={idx % 2 === 0 ? "bg-white" : "bg-blue-50/30"}>
+                    <td className="px-3 py-2 font-medium text-gray-700 sticky left-0 bg-inherit">
+                      {label}
+                    </td>
+                    {captacaoMensal.map((d) => {
+                      const val = d[chave] as number | null;
+                      const neg = val != null && val < 0;
+                      return (
+                        <td
+                          key={d.periodo}
+                          className={`px-3 py-2 text-right tabular-nums ${
+                            neg ? "text-red-600" : "text-gray-800"
+                          }`}
+                        >
+                          {fmtSinal(val)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {hasSem && (
+                    <tr className="bg-anbima-blue-light/10">
+                      <td className="pl-7 pr-3 py-1.5 text-xs text-gray-500 italic sticky left-0 bg-anbima-blue-light/10">
+                        ↳ Sem Crédito
                       </td>
-                    );
-                  })}
-                </tr>
+                      {captacaoMensal.map((d) => {
+                        const val = d["renda_fixa_sem_credito"] as number | null;
+                        const neg = val != null && val < 0;
+                        return (
+                          <td
+                            key={d.periodo}
+                            className={`px-3 py-1.5 text-right tabular-nums text-xs ${
+                              neg ? "text-red-500" : "text-gray-500"
+                            }`}
+                          >
+                            {fmtSinal(val)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                  {hasCom && (
+                    <tr className="bg-anbima-blue-light/10">
+                      <td className="pl-7 pr-3 py-1.5 text-xs text-gray-500 italic sticky left-0 bg-anbima-blue-light/10">
+                        ↳ Com Crédito
+                      </td>
+                      {captacaoMensal.map((d) => {
+                        const val = d["renda_fixa_com_credito"] as number | null;
+                        const neg = val != null && val < 0;
+                        return (
+                          <td
+                            key={d.periodo}
+                            className={`px-3 py-1.5 text-right tabular-nums text-xs ${
+                              neg ? "text-red-500" : "text-gray-500"
+                            }`}
+                          >
+                            {fmtSinal(val)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>

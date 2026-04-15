@@ -74,5 +74,172 @@
       "renda_fixa_sem_credito": 34.329,
       "renda_fixa_com_credito": 115.902
     }
+  ],
+  "captacao_mensal": [
+    {
+      "periodo": "2023-01",
+      "renda_fixa_sem_credito": 26.039,
+      "renda_fixa_com_credito": -16.263
+    },
+    {
+      "periodo": "2023-02",
+      "renda_fixa_sem_credito": 14.576,
+      "renda_fixa_com_credito": -8.916
+    },
+    {
+      "periodo": "2023-03",
+      "renda_fixa_sem_credito": -0.769,
+      "renda_fixa_com_credito": -26.62
+    },
+    {
+      "periodo": "2023-04",
+      "renda_fixa_sem_credito": -4.984,
+      "renda_fixa_com_credito": -29.94
+    },
+    {
+      "periodo": "2023-05",
+      "renda_fixa_sem_credito": -4.716,
+      "renda_fixa_com_credito": -17.489
+    },
+    {
+      "periodo": "2023-06",
+      "renda_fixa_sem_credito": -7.791,
+      "renda_fixa_com_credito": 3.779
+    },
+    {
+      "periodo": "2023-07",
+      "renda_fixa_sem_credito": 11.471,
+      "renda_fixa_com_credito": 1.449
+    },
+    {
+      "periodo": "2023-08",
+      "renda_fixa_sem_credito": 0.703,
+      "renda_fixa_com_credito": 25.373
+    },
+    {
+      "periodo": "2023-09",
+      "renda_fixa_sem_credito": -2.567,
+      "renda_fixa_com_credito": 6.909
+    },
+    {
+      "periodo": "2023-10",
+      "renda_fixa_sem_credito": -14.803,
+      "renda_fixa_com_credito": 3.029
+    },
+    {
+      "periodo": "2023-11",
+      "renda_fixa_sem_credito": 15.353,
+      "renda_fixa_com_credito": 15.265
+    },
+    {
+      "periodo": "2023-12",
+      "renda_fixa_sem_credito": -44.537,
+      "renda_fixa_com_credito": -2.593
+    },
+    {
+      "periodo": "2024-01",
+      "renda_fixa_sem_credito": 48.979,
+      "renda_fixa_com_credito": 20.105
+    },
+    {
+      "periodo": "2024-02",
+      "renda_fixa_sem_credito": 6.552,
+      "renda_fixa_com_credito": 39.194
+    },
+    {
+      "periodo": "2024-03",
+      "renda_fixa_sem_credito": -15.736,
+      "renda_fixa_com_credito": 35.299
+    },
+    {
+      "periodo": "2024-04",
+      "renda_fixa_sem_credito": 0.963,
+      "renda_fixa_com_credito": 21.351
+    },
+    {
+      "periodo": "2024-05",
+      "renda_fixa_sem_credito": -1.994,
+      "renda_fixa_com_credito": 32.257
+    },
+    {
+      "periodo": "2024-06",
+      "renda_fixa_sem_credito": -18.563,
+      "renda_fixa_com_credito": 30.795
+    },
+    {
+      "periodo": "2024-07",
+      "renda_fixa_sem_credito": 20.908,
+      "renda_fixa_com_credito": 43.135
+    },
+    {
+      "periodo": "2024-08",
+      "renda_fixa_sem_credito": -14.586,
+      "renda_fixa_com_credito": 61.052
+    },
+    {
+      "periodo": "2024-09",
+      "renda_fixa_sem_credito": 12.198,
+      "renda_fixa_com_credito": 35.624
+    },
+    {
+      "periodo": "2024-10",
+      "renda_fixa_sem_credito": -21.586,
+      "renda_fixa_com_credito": 43.4
+    },
+    {
+      "periodo": "2024-11",
+      "renda_fixa_sem_credito": 6.951,
+      "renda_fixa_com_credito": -13.177
+    },
+    {
+      "periodo": "2024-12",
+      "renda_fixa_sem_credito": -71.564,
+      "renda_fixa_com_credito": -41.841
+    },
+    {
+      "periodo": "2025-01",
+      "renda_fixa_sem_credito": 43.138,
+      "renda_fixa_com_credito": 3.345
+    },
+    {
+      "periodo": "2025-02",
+      "renda_fixa_sem_credito": 0.387,
+      "renda_fixa_com_credito": 6.011
+    },
+    {
+      "periodo": "2025-03",
+      "renda_fixa_sem_credito": -0.515,
+      "renda_fixa_com_credito": 13.994
+    },
+    {
+      "periodo": "2025-04",
+      "renda_fixa_sem_credito": -7.573,
+      "renda_fixa_com_credito": -12.108
+    },
+    {
+      "periodo": "2025-05",
+      "renda_fixa_sem_credito": 12.373,
+      "renda_fixa_com_credito": 19.828
+    },
+    {
+      "periodo": "2025-06",
+      "renda_fixa_sem_credito": 10.192,
+      "renda_fixa_com_credito": 1.789
+    },
+    {
+      "periodo": "2025-07",
+      "renda_fixa_sem_credito": -3.995,
+      "renda_fixa_com_credito": 24.206
+    },
+    {
+      "periodo": "2025-08",
+      "renda_fixa_sem_credito": -33.804,
+      "renda_fixa_com_credito": 30.014
+    },
+    {
+      "periodo": "2025-09",
+      "renda_fixa_sem_credito": 14.126,
+      "renda_fixa_com_credito": 28.823
+    }
   ]
 }

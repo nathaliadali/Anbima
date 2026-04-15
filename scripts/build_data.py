@@ -60,25 +60,61 @@ RF_COM_CREDITO_NORM = {
 COLUNAS_RF_GRUPOS = ["renda_fixa_sem_credito", "renda_fixa_com_credito"]
 
 
-def _parse_aux_rf_grupos(aux_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _parse_aux_rf_grupos(aux_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Le data/aux/rf_grupos.json e retorna (rf_cap_anual, rf_pl_anual) com colunas:
-        ano, renda_fixa_sem_credito, renda_fixa_com_credito  (em bilhoes)
+    Le scripts/rf_grupos.json e retorna (rf_cap_anual, rf_pl_anual, rf_cap_mensal).
+    Todas as colunas em bilhoes.
     """
     json_path = Path(aux_dir) / "rf_grupos.json"
     if not json_path.exists():
-        return pd.DataFrame(), pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
     try:
         with open(json_path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception as e:
         print(f"  [AVISO] Falha ao ler rf_grupos.json: {e}")
-        return pd.DataFrame(), pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
-    rf_cap = pd.DataFrame(data.get("captacao", []))
-    rf_pl  = pd.DataFrame(data.get("pl", []))
-    return rf_cap, rf_pl
+    rf_cap         = pd.DataFrame(data.get("captacao", []))
+    rf_pl          = pd.DataFrame(data.get("pl", []))
+    rf_cap_mensal  = pd.DataFrame(data.get("captacao_mensal", []))
+    return rf_cap, rf_pl, rf_cap_mensal
+
+
+def _compute_rf_grupos_mensal(tipo_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calcula RF Sem/Com Credito mensais somando os sub-tipos por mes.
+    Retorna DataFrame com: periodo, renda_fixa_sem_credito, renda_fixa_com_credito
+    """
+    if tipo_df.empty:
+        return pd.DataFrame()
+
+    month_cols = [c for c in tipo_df.columns
+                  if isinstance(c, str) and len(c) == 7 and c[4] == "-"]
+    if not month_cols:
+        return pd.DataFrame()
+
+    sem_mask = tipo_df["nome"].apply(lambda n: _normalize(str(n)) in RF_SEM_CREDITO_NORM)
+    com_mask = tipo_df["nome"].apply(lambda n: _normalize(str(n)) in RF_COM_CREDITO_NORM)
+
+    rf_sem = tipo_df[sem_mask]
+    rf_com = tipo_df[com_mask]
+
+    rows = []
+    for m in sorted(month_cols):
+        def _col_sum(df: pd.DataFrame, col: str) -> float | None:
+            if col not in df.columns:
+                return None
+            vals = pd.to_numeric(df[col], errors="coerce").dropna()
+            return round(float(vals.sum()), 3) if not vals.empty else None
+
+        rows.append({
+            "periodo": m,
+            "renda_fixa_sem_credito": _col_sum(rf_sem, m),
+            "renda_fixa_com_credito": _col_sum(rf_com, m),
+        })
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
 def _merge_rf_grupos(aux_df: pd.DataFrame, boletim_df: pd.DataFrame) -> pd.DataFrame:
@@ -273,6 +309,9 @@ def _mensal_classe_to_json(df: pd.DataFrame, n_meses: int = 10) -> list[dict]:
         for col in COLUNAS_CLASSE_ANUAL:
             if col in row:
                 d[col] = _safe_float(row[col])
+        for col in COLUNAS_RF_GRUPOS:
+            if col in row:
+                d[col] = _safe_float(row[col])
         result.append(d)
     return result
 
@@ -415,18 +454,30 @@ def build(raw_dir: str = "data/raw", output_dir: str = "public/data"):
     # Enriquece com grupos RF (aux historico + boletim recente)
     print("Calculando grupos RF Sem Credito / Com Credito...")
     aux_dir = Path(__file__).parent
-    aux_rf_cap, aux_rf_pl = _parse_aux_rf_grupos(aux_dir)
+    aux_rf_cap, aux_rf_pl, aux_rf_cap_mensal = _parse_aux_rf_grupos(aux_dir)
 
     boletim_rf_cap = _compute_rf_grupos_anual(cap_mensal, agg="sum")
     boletim_rf_pl  = _compute_rf_grupos_anual(pl_mensal,  agg="dec")
+    boletim_rf_cap_mensal = _compute_rf_grupos_mensal(cap_mensal)
 
     rf_cap = _merge_rf_grupos(aux_rf_cap, boletim_rf_cap)
     rf_pl  = _merge_rf_grupos(aux_rf_pl,  boletim_rf_pl)
+
+    # Merge mensal: aux historico + boletim (boletim tem prioridade)
+    if not aux_rf_cap_mensal.empty and not boletim_rf_cap_mensal.empty:
+        rf_cap_mensal = pd.concat([aux_rf_cap_mensal, boletim_rf_cap_mensal], ignore_index=True)
+        rf_cap_mensal = rf_cap_mensal.sort_values("periodo").drop_duplicates("periodo", keep="last")
+    elif not boletim_rf_cap_mensal.empty:
+        rf_cap_mensal = boletim_rf_cap_mensal
+    else:
+        rf_cap_mensal = aux_rf_cap_mensal
 
     if not cap_anual.empty and not rf_cap.empty:
         cap_anual = cap_anual.merge(rf_cap, on="ano", how="left")
     if not pl_anual.empty and not rf_pl.empty:
         pl_anual = pl_anual.merge(rf_pl, on="ano", how="left")
+    if not cap_mensal_classe.empty and not rf_cap_mensal.empty:
+        cap_mensal_classe = cap_mensal_classe.merge(rf_cap_mensal, on="periodo", how="left")
 
     # Serializa
     outputs = {

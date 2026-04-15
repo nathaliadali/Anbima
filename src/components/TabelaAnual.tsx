@@ -105,7 +105,6 @@ function Tabela({
                 <React.Fragment key={chave}>
                   <tr
                     className={idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"}
-                    className={idx % 2 === 0 ? "bg-white" : "bg-anbima-blue-light/30"}
                   >
                     <td className="px-3 py-2 font-medium text-gray-700">
                       {label}
