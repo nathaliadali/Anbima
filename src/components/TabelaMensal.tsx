@@ -36,9 +36,12 @@ function fmtSinal(val: number | null | undefined): string {
 }
 
 // Extrai as classes presentes nos dados (exclui 'periodo' e chaves de meta)
+// Chaves que são sub-linhas e não devem aparecer como classe própria
+const SUB_CHAVES = new Set(["renda_fixa_sem_credito", "renda_fixa_com_credito"]);
+
 function getClasses(dados: DadoMensalResumo[]): string[] {
   if (!dados.length) return [];
-  const keys = Object.keys(dados[0]).filter((k) => k !== "periodo");
+  const keys = Object.keys(dados[0]).filter((k) => k !== "periodo" && !SUB_CHAVES.has(k));
   // Ordena preferencialmente: renda_fixa, multimercado, acoes, ...
   const ordem = [
     "renda_fixa", "multimercado", "acoes", "cambial",
